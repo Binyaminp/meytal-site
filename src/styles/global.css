@@ -29,11 +29,25 @@ body {
     border-bottom: 2px solid var(--primary); /* A solid line of your new primary color */
 }
 
+.logo-img {
+    width: auto;           /* Maintains aspect ratio */
+    height: 80px;          /* Small & clean on mobile */
+    max-width: 100%;       /* Prevents overflow */
+    object-fit: contain;
+    margin-bottom: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+/* Hover effect to make it feel "Lively" */
+.logo-img:hover {
+    transform: scale(1.05);
+}
+
 .logo-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    text-align: center;
 }
 
 .logo-container h1 {
@@ -209,9 +223,13 @@ th {
 /* --- 6. MOBILE FIXES --- */
 @media (max-width: 600px) {
 
-    /* Shrink the header on mobile */
+
+    .logo-img {
+        height: 120px;     /* Slightly larger on desktop */
+    }
+    
     .site-header {
-        padding: 1.5rem 1rem;
+        padding: 2.5rem 1rem; /* More "breathable" space */
     }
 
     .logo-container h1 {
