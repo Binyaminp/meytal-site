@@ -9,7 +9,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.17.1"
+    "astro": "^5.17.1",
+    "csv-parse": "^6.1.0"
   },
   "devDependencies": {
     "@types/node": "^25.3.3"
