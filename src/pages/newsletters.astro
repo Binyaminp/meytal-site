@@ -1,0 +1,57 @@
+---
+import Layout from '../layouts/layout.astro';
+
+const API_KEY = import.meta.env.GOOGLE_API_KEY;
+const ROOT_FOLDER_ID = import.meta.env.DRIVE_FOLDER_ID_NEWSLETTERS;
+// If these are undefined, the build will fail (which is good!)
+if (!API_KEY || !ROOT_FOLDER_ID) throw new Error("GOOGLE_API_KEY or DRIVE_FOLDER_ID_NEWSLETTERS is missing");
+// 1. Fetch Year Folders
+const foldersUrl = `https://www.googleapis.com/drive/v3/files?q='${ROOT_FOLDER_ID}'+in+parents+and+mimeType='application/vnd.google-apps.folder'&key=${API_KEY}&fields=files(id,name)`;
+
+const folderRes = await fetch(foldersUrl);
+const folderData = await folderRes.json();
+
+// DEBUG: If things go wrong, this will show the error in your terminal
+if (folderData.error) {
+  console.error("Google API Error:", folderData.error.message);
+  throw new Error(`Google API: ${folderData.error.message}`);
+}
+
+// Safely get the folders or an empty array
+const yearFolders = folderData.files || [];
+
+// 2. Fetch Files for each year (async mapping)
+const archive = await Promise.all(yearFolders.map(async (folder: { id: string; name: string }) => {
+  const filesUrl = `https://www.googleapis.com/drive/v3/files?q='${folder.id}'+in+parents+and+mimeType='application/pdf'&key=${API_KEY}&fields=files(id,name,webViewLink,modifiedTime)`;
+  
+  const fileRes = await fetch(filesUrl);
+  const { files } = await fileRes.json();
+  
+  return {
+    year: folder.name,
+    files: files.sort((a: { name: string }, b: { name: string }) => b.name.localeCompare(a.name)) // Sort months descending
+  };
+}));
+
+// Final sort to make sure 2026 shows before 2025
+archive.sort((a, b) => b.year.localeCompare(a.year));
+---
+
+<Layout title="Newsletter Archive">
+  <h1>ארכיון מיטלונים</h1>
+
+  {archive.map((section) => (
+    <section class="year-block">
+      <h2>{section.year}</h2>
+      <ul class="file-list">
+        {section.files.map((file: { id: string; name: string; webViewLink: string; modifiedTime: string }) => (
+          <li>
+            <a href={file.webViewLink} target="_blank">
+              📄 {file.name.replace('.pdf', '').replaceAll('-', ' ')}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+</Layout>

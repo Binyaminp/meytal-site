@@ -1,0 +1,62 @@
+---
+import Layout from "../layouts/layout.astro";
+
+const API_KEY = import.meta.env.GOOGLE_API_KEY;
+const FOLDER_ID = import.meta.env.DRIVE_FOLDER_ID_FAMILIES;
+
+// We need 'id' and 'name' and 'webViewLink'
+const url = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents+and+mimeType='application/pdf'&key=${API_KEY}&fields=files(id,name,webViewLink)`;
+
+const res = await fetch(url);
+const data = await res.json();
+const families = data.files || [];
+---
+
+<Layout title="משפחות הקהילה">
+    <div class="header-row">
+        <h1>משפחות הקהילה</h1>
+        <input
+            type="text"
+            id="familySearch"
+            placeholder="חיפוש משפחה..."
+            dir="rtl"
+        />
+    </div>
+
+    <div class="family-grid" id="familyGrid">
+        {
+            families.map(
+                (family: { id: string; name: string; webViewLink: string }) => {
+                    // Create a direct thumbnail URL using the file ID
+                    // 'sz=w400' requests a 400px wide version
+                    const thumbUrl = `https://www.googleapis.com/drive/v3/files/${family.id}?getAbuseConfirmation=true&alt=media&key=${API_KEY}`;
+                    return (
+                        <a
+                            href={family.webViewLink}
+                            target="_blank"
+                            class="family-card"
+                            data-name={family.name.toLowerCase()}
+                        >
+                            <div class="thumb-container">
+                                <img
+                                    src={thumbUrl}
+                                    alt=""
+                                    loading="lazy"
+                                    decoding="async"
+                                />
+                                <div class="fallback-icon">📄</div>
+                            </div>
+                            <div class="card-footer">
+                                <span class="family-label">משפחת</span>
+                                <h3 class="name-text">
+                                    {family.name.replace(".pdf", "")}
+                                </h3>
+                            </div>
+                        </a>
+                    );
+                },
+            )
+        }
+    </div>
+</Layout>
+

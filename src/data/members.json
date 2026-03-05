@@ -1,0 +1,16 @@
+[
+  {
+    "name": "Jane Doe",
+    "role": "Community Chair",
+    "email": "jane.doe@example.com",
+    "phone": "(555) 123-4567",
+    "image": "https://api.dicebear.com/7.x/avataaars/svg?seed=Jane"
+  },
+  {
+    "name": "John Smith",
+    "role": "Treasurer",
+    "email": "john.smith@example.com",
+    "phone": "(555) 987-6543",
+    "image": "https://api.dicebear.com/7.x/avataaars/svg?seed=John"
+  }
+]

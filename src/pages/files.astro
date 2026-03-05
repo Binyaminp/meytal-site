@@ -1,0 +1,58 @@
+---
+import Layout from '../layouts/layout.astro';
+
+const API_KEY = import.meta.env.GOOGLE_API_KEY;
+const ROOT_ID = import.meta.env.DRIVE_FOLDER_ID_RESOURCES;
+
+// 1. Fetch the Category Folders
+const folderUrl = `https://www.googleapis.com/drive/v3/files?q='${ROOT_ID}'+in+parents+and+mimeType='application/vnd.google-apps.folder'&key=${API_KEY}&fields=files(id,name)`;
+
+const res = await fetch(folderUrl);
+const data = await res.json();
+
+// Error Guard
+if (data.error) {
+  console.error("Google API Error (Files):", data.error.message);
+}
+
+const categories = data.files || [];
+
+// 2. Fetch files for each category
+const sections = await Promise.all(categories.map(async (cat: { id: string, name: string }) => {
+  const fileUrl = `https://www.googleapis.com/drive/v3/files?q='${cat.id}'+in+parents&key=${API_KEY}&fields=files(id,name,webViewLink,fileExtension,size)`;
+  
+  const fileRes = await fetch(fileUrl);
+  const fileData = await fileRes.json();
+  
+  return {
+    name: cat.name,
+    files: fileData.files || []
+  };
+}));
+---
+
+<Layout title="Useful Files">
+  <h1>קבצים שימושיים</h1>
+  <p>מצא כאן את כל המסמכים והקבצים החשובים.</p>
+
+  <div class="resources-grid">
+    {sections.map(section => (
+      <div class="category-card">
+        <h2>{section.name}</h2>
+        <ul class="file-list">
+          {section.files.map((file: { id: string, name: string, webViewLink: string, fileExtension: string, size: number }) => (
+            <li class="file-row">
+              <span class="file-icon">
+                {file.fileExtension === 'pdf' ? '📕' : '📄'}
+              </span>
+              <div class="file-info">
+                <a href={file.webViewLink} target="_blank">{file.name}</a>
+                {file.size && <span class="size">({(file.size / 1024).toFixed(0)} KB)</span>}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+</Layout>

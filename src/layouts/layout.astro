@@ -1,0 +1,46 @@
+---
+// Layout.astro
+// This is the "Component Script" area (TypeScript/JavaScript)
+// It runs at build time on the server.
+interface Props {
+  title: string;
+}
+
+import '../styles/global.css';
+const { title } = Astro.props;const { pathname } = Astro.url;
+const currentPath = pathname.replace(/\/$/, "");
+const currentYear = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title} | Community Hub</title>
+  </head>
+  <body>
+  <header class="site-header">
+    <div class="logo-container">
+      <img src="/logo.png" alt="Logo" class="logo-img" /> 
+      <h1>קהילת מיטל</h1>
+    </div>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="/" class={currentPath === "" ? "active" : ""}>בית</a></li>
+      <li><a href="/families" class={currentPath === "/families" ? "active" : ""}>משפחות</a></li>
+      <li><a href="/contacts" class={currentPath === "/contacts" ? "active" : ""}>אנשי קשר</a></li>
+      <li><a href="/newsletters" class={currentPath === "/newsletters" ? "active" : ""}>מיטלונים</a></li>
+      <li><a href="/files" class={currentPath === "/files" ? "active" : ""}>קבצים</a></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <slot />
+  </main>
+</body>
+</html>

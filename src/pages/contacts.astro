@@ -1,0 +1,68 @@
+---
+import Layout from '../layouts/layout.astro';
+import { parse } from 'csv-parse/sync'; // Run: npm install csv-parse
+
+// define the shape of each row coming from the sheet
+type Member = {
+  Name: string;
+  Phone: string;
+  Email: string;
+};
+
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRxHTBjrDIcYUsUn0m9FZI2OX3MrlbF8UT3CKeNVGC0pTYxlCrYzDlkJ4eYaSeJuHDaiT8P5JTFWZnO/pub?output=csv";
+
+// Fetch the data from Google at build-time
+const response = await fetch(CSV_URL);
+const csvData = await response.text();
+
+// Parse CSV into an array of objects, cast to the Member type
+const members: Member[] = parse(csvData, {
+  columns: true,
+  skip_empty_lines: true
+}) as Member[];
+
+// Sort alphabetically
+const sortedMembers = members.sort((a, b) => a.Name.localeCompare(b.Name));
+---
+
+<Layout title="Community Phonebook">
+  <h1>אנשי קשר</h1>
+  <p>רשימת אנשי הקשר של מיטל.</p>
+
+  <input type="text" id="phoneSearch" placeholder="חפש שמות..." />
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>שם</th>
+          <th>טלפון</th>
+          <th>אימייל</th>
+        </tr>
+      </thead>
+      <tbody id="phonebookBody">
+        {sortedMembers.map((person) => (
+          <tr>
+            <td class="name-cell">{person.Name}</td>
+            <td><a href={`tel:${person.Phone}`}>{person.Phone}</a></td>
+            <td><a href={`mailto:${person.Email}`}>{person.Email}</a></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</Layout>
+
+<script>
+  // Client-side search (same as before)
+  const search = document.getElementById('phoneSearch') as HTMLInputElement;
+  const rows = document.querySelectorAll('#phonebookBody tr');
+
+  search?.addEventListener('input', () => {
+    const query = search.value.toLowerCase();
+    rows.forEach(row => {
+      const text = row.querySelector('.name-cell')?.textContent?.toLowerCase() || '';
+      (row as HTMLElement).style.display = text.includes(query) ? '' : 'none';
+    });
+  });
+</script>

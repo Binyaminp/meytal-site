@@ -1,0 +1,39 @@
+---
+import Layout from '../layouts/layout.astro';
+---
+
+<Layout title="Join the Phonebook">
+  <div class="form-container">
+    <h1>Add Your Contact Info</h1>
+    <p>Fill in your details to be added to the community directory.</p>
+
+    <form name="public-contacts" method="POST" data-netlify="true" action="/thanks">
+      <div class="group">
+        <label for="name">Full Name</label>
+        <input type="text" name="name" id="name" required placeholder="John Smith" />
+      </div>
+
+      <div class="group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" name="phone" id="phone" required placeholder="(555) 000-0000" />
+      </div>
+
+      <div class="group">
+        <label for="email">Email Address</label>
+        <input type="email" name="email" id="email" required placeholder="john@example.com" />
+      </div>
+
+      <button type="submit" class="submit-btn">Add to Directory</button>
+      <a href="/contacts" class="cancel-link">Back to list</a>
+    </form>
+  </div>
+</Layout>
+
+<style>
+  .form-container { max-width: 500px; margin: 0 auto; }
+  .group { margin-bottom: 1.2rem; }
+  label { display: block; margin-bottom: 0.4rem; font-weight: 500; }
+  input { width: 100%; padding: 0.8rem; border: 1px solid #cbd5e1; border-radius: 6px; }
+  .submit-btn { width: 100%; padding: 1rem; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1rem; }
+  .cancel-link { display: block; text-align: center; margin-top: 1rem; color: #64748b; text-decoration: none; font-size: 0.9rem; }
+</style>
